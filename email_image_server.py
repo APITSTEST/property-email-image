@@ -55,8 +55,11 @@ def email_image():
 
         # Centered text helpers
         def draw_centered_text(text, y, font_used, color):
-            w, h = draw.textsize(text, font=font_used)
-            draw.text((center_x - w // 2, y), text, font=font_used, fill=color)
+    bbox = draw.textbbox((0, 0), text, font=font_used)
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+    draw.text((center_x - w // 2, y), text, font=font_used, fill=color)
+
 
         draw_centered_text(title, 180, bold_font, "black")
         draw_centered_text(description, 200, font, "black")  # Beds/Baths now black
