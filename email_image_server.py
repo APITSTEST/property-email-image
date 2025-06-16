@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import feedparser
 import requests
 from io import BytesIO
+import os
 
 app = Flask(__name__)
 
@@ -35,6 +36,13 @@ def email_image():
         bold_font = font
         button_font = font
 
+    # Helper function (defined outside the loop)
+    def draw_centered_text(text, y, font_used, color, center_x):
+        bbox = draw.textbbox((0, 0), text, font=font_used)
+        w = bbox[2] - bbox[0]
+        draw.text((center_x - w // 2, y), text, font=font_used, fill=color)
+
+    # Loop through properties
     for i, entry in enumerate(entries):
         x = i * 300 + 10
         center_x = x + 140  # Half of property card width (280)
@@ -53,18 +61,9 @@ def email_image():
         description = entry.get("description", "")[:50] + "..." if len(entry.get("description", "")) > 50 else entry.get("description", "")
         price = entry.get("category", "")
 
-        # Centered text helpers
-def draw_centered_text(text, y, font_used, color):
-    bbox = draw.textbbox((0, 0), text, font=font_used)
-    w = bbox[2] - bbox[0]
-    h = bbox[3] - bbox[1]
-    draw.text((center_x - w // 2, y), text, font=font_used, fill=color)
-
-
-
-        draw_centered_text(title, 180, bold_font, "black")
-        draw_centered_text(description, 200, font, "black")  # Beds/Baths now black
-        draw_centered_text(f"Price: {price}", 220, bold_font, orange)  # Bold and orange
+        draw_centered_text(title, 180, bold_font, "black", center_x)
+        draw_centered_text(description, 200, font, "black", center_x)
+        draw_centered_text(f"Price: {price}", 220, bold_font, orange, center_x)
 
     # View More Button
     button_text = "View More Properties"
@@ -77,9 +76,10 @@ def draw_centered_text(text, y, font_used, color):
         [button_x, button_y, button_x + button_width, button_y + button_height],
         fill=orange
     )
-    w, h = draw.textsize(button_text, font=button_font)
+    bbox = draw.textbbox((0, 0), button_text, font=button_font)
+    text_width = bbox[2] - bbox[0]
     draw.text(
-        (button_x + (button_width - w) // 2, button_y + 10),
+        (button_x + (button_width - text_width) // 2, button_y + 10),
         button_text,
         font=button_font,
         fill="white"
@@ -90,8 +90,6 @@ def draw_centered_text(text, y, font_used, color):
     image.save(output, format='PNG')
     output.seek(0)
     return send_file(output, mimetype='image/png')
-
-import os
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Use Render's PORT or fallback
