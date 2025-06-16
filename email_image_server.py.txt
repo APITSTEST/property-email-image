@@ -1,0 +1,68 @@
+from flask import Flask, send_file, request
+from PIL import Image, ImageDraw, ImageFont
+import feedparser
+import requests
+from io import BytesIO
+
+app = Flask(__name__)
+
+@app.route('/email-image')
+def email_image():
+    rss_url = request.args.get('rss')
+    if not rss_url:
+        return "Missing RSS feed URL", 400
+
+    # Parse the RSS feed
+    feed = feedparser.parse(rss_url)
+    entries = feed.entries[:3]
+
+    # Create a blank image
+    img_width = 900
+    img_height = 320
+    image = Image.new('RGB', (img_width, img_height), color='white')
+    draw = ImageDraw.Draw(image)
+
+    # Load font
+    try:
+        font = ImageFont.truetype("arial.ttf", 14)
+        bold_font = ImageFont.truetype("arialbd.ttf", 16)
+    except:
+        font = ImageFont.load_default()
+        bold_font = font
+
+    for i, entry in enumerate(entries):
+        x = i * 300
+        image_url = ''
+        if 'media_content' in entry and entry.media_content:
+            image_url = entry.media_content[0]['url']
+
+        # Try to get and paste property image
+        try:
+            response = requests.get(image_url)
+            prop_img = Image.open(BytesIO(response.content)).resize((280, 160))
+            image.paste(prop_img, (x + 10, 10))
+        except:
+            draw.text((x + 10, 10), "Image not available", fill="gray", font=font)
+
+        # Get data from RSS
+        title = entry.title  # Location
+        description = entry.get("description", "")  # Beds/Baths
+        price = entry.get("category", "")  # Price
+
+        # Clean description (optional: limit characters)
+        if len(description) > 50:
+            description = description[:47] + "..."
+
+        # Draw text
+        draw.text((x + 10, 180), title, font=bold_font, fill="black")
+        draw.text((x + 10, 200), description, font=font, fill="darkgray")
+        draw.text((x + 10, 220), f"Price: {price}", font=font, fill="green")
+
+    # Save to memory
+    output = BytesIO()
+    image.save(output, format='PNG')
+    output.seek(0)
+    return send_file(output, mimetype='image/png')
+
+if __name__ == '__main__':
+    app.run(debug=True)
