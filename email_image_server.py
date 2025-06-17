@@ -14,7 +14,9 @@ def email_html():
     feed = feedparser.parse(rss_url)
     entries = feed.entries[:4]  # Show up to 4 properties
 
-    html = ['<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; margin: 0 auto;">']
+    html = ['''
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+    ''']
 
     for i in range(0, len(entries), 2):
         html.append('<tr>')
@@ -29,35 +31,32 @@ def email_html():
                 link = entry.link
 
                 html.append(f'''
-                    <td align="center" valign="top" style="
-                        display:inline-block;
-                        width:100%;
-                        max-width:300px;
-                        vertical-align:top;
-                        font-family:sans-serif;
-                        font-size:14px;
-                        color:#333;
-                        padding:10px;
-                    ">
-                        <img src="{image_url}" alt="Property image" style="width:100%; max-width:250px; border-radius:8px;" /><br/>
-                        <strong>{title}</strong><br/>
-                        {description}<br/>
-                        <strong style="color:#FF9500;">{price}</strong><br/>
-                        <a href="{link}" style="
-                            display:inline-block;
-                            margin-top:10px;
-                            padding:10px 20px;
-                            background-color:#FF9500;
-                            color:#fff;
-                            text-decoration:none;
-                            font-weight:bold;
-                            border-radius:20px;
-                            font-size:14px;
-                        ">View Property</a>
+                    <td width="50%" style="padding:10px;" align="center" valign="top">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:280px;">
+                            <tr>
+                                <td align="center" style="font-family:sans-serif; font-size:14px; color:#333;">
+                                    <img src="{image_url}" alt="Property image" width="100%" style="border-radius:8px;"><br/>
+                                    <strong>{title}</strong><br/>
+                                    {description}<br/>
+                                    <strong style="color:#FF9500;">{price}</strong><br/>
+                                    <a href="{link}" style="
+                                        display:inline-block;
+                                        margin-top:10px;
+                                        padding:10px 20px;
+                                        background-color:#FF9500;
+                                        color:#fff;
+                                        text-decoration:none;
+                                        font-weight:bold;
+                                        border-radius:20px;
+                                        font-size:14px;
+                                    ">View Property</a>
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 ''')
             else:
-                html.append('<td style="padding:10px;"></td>')
+                html.append('<td width="50%" style="padding:10px;"></td>')
 
         html.append('</tr>')
 
