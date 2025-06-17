@@ -1,4 +1,6 @@
-from flask import Flask, request, Markup
+from flask import Flask, request
+from markupsafe import Markup
+
 import feedparser
 
 app = Flask(__name__)
