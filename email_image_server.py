@@ -16,24 +16,25 @@ def email_html():
     entries = feed.entries[:3]
 
     # Build HTML block
-    html = ['<table width="100%" cellpadding="10" cellspacing="0"><tr>']
-    for entry in entries:
-        image_url = entry.media_content[0]['url'] if 'media_content' in entry else ''
-        title = entry.title
-        description = entry.get("description", "")
-        price = entry.get("category", "")
-        link = entry.link
+    html = ['<table width="100%" cellpadding="10" cellspacing="0" style="width:100%; max-width:600px; margin:0 auto;">']
+for entry in entries:
+    image_url = entry.media_content[0]['url'] if 'media_content' in entry else ''
+    title = entry.title
+    description = entry.get("description", "")
+    price = entry.get("category", "")
+    link = entry.link
 
-        html.append(f'''
-            <td align="center" style="font-family:sans-serif; font-size:14px; color:#333;">
-                <img src="{image_url}" alt="Property image" width="250" style="border-radius:8px;" /><br/>
+    html.append(f'''
+        <tr>
+            <td align="center" style="font-family:sans-serif; font-size:14px; color:#333; border-bottom:1px solid #eee; padding-bottom:20px;">
+                <img src="{image_url}" alt="Property image" width="100%" style="max-width:250px; border-radius:8px;" /><br/>
                 <strong>{title}</strong><br/>
                 {description}<br/>
                 <strong style="color:#FF9500;">{price}</strong><br/>
                 <a href="{link}" style="
                     display:inline-block;
-                    margin-top:8px;
-                    padding:10px 15px;
+                    margin-top:10px;
+                    padding:10px 20px;
                     background-color:#FF9500;
                     color:#fff;
                     text-decoration:none;
@@ -42,7 +43,11 @@ def email_html():
                     font-size:14px;
                 ">View Property</a>
             </td>
-        ''')
+        </tr>
+    ''')
+
+html.append('</table>')
+
 
     html.append('</tr></table>')
     return Markup(''.join(html))
