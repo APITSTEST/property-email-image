@@ -1,4 +1,5 @@
 flask
-pillow
+gunicorn
 feedparser
 requests
+markupsafe
