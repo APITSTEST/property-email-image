@@ -1,10 +1,3 @@
-from flask import Flask, request
-from markupsafe import Markup
-import feedparser
-import os
-
-app = Flask(__name__)
-
 @app.route('/email-html')
 def email_html():
     rss_url = request.args.get('rss')
@@ -12,12 +5,12 @@ def email_html():
         return "Missing RSS feed URL", 400
 
     feed = feedparser.parse(rss_url)
-    entries = feed.entries[:4]  # Now showing 4 properties
+    entries = feed.entries[:4]  # Show up to 4 properties
 
     html = ['<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; margin: 0 auto;">']
 
     for i in range(0, len(entries), 2):
-        html.append('<tr>')  # Start new row every 2 items
+        html.append('<tr>')  # Start row
 
         for j in range(2):
             if i + j < len(entries):
@@ -29,8 +22,8 @@ def email_html():
                 link = entry.link
 
                 html.append(f'''
-                    <td align="center" valign="top" width="50%" style="display:inline-block; width:100%; max-width:300px; font-family:sans-serif; font-size:14px; color:#333; padding:10px;">
-                        <img src="{image_url}" alt="Property image" width="100%" style="border-radius:8px; max-width:100%;"><br/>
+                    <td width="50%" valign="top" align="center" style="font-family:sans-serif; font-size:14px; color:#333; padding:10px;">
+                        <img src="{image_url}" alt="Property image" style="width:100%; max-width:250px; border-radius:8px;" /><br/>
                         <strong>{title}</strong><br/>
                         {description}<br/>
                         <strong style="color:#FF9500;">{price}</strong><br/>
@@ -47,11 +40,10 @@ def email_html():
                         ">View Property</a>
                     </td>
                 ''')
-        html.append('</tr>')
+            else:
+                html.append('<td width="50%" style="padding:10px;"></td>')  # Empty cell for odd number of entries
+
+        html.append('</tr>')  # End row
 
     html.append('</table>')
     return Markup(''.join(html))
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
