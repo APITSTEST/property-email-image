@@ -1,3 +1,10 @@
+from flask import Flask, request
+from markupsafe import Markup
+import feedparser
+import os
+
+app = Flask(__name__)
+
 @app.route('/email-html')
 def email_html():
     rss_url = request.args.get('rss')
@@ -10,7 +17,7 @@ def email_html():
     html = ['<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; margin: 0 auto;">']
 
     for i in range(0, len(entries), 2):
-        html.append('<tr>')  # Start row
+        html.append('<tr>')
 
         for j in range(2):
             if i + j < len(entries):
@@ -22,7 +29,16 @@ def email_html():
                 link = entry.link
 
                 html.append(f'''
-                    <td width="50%" valign="top" align="center" style="font-family:sans-serif; font-size:14px; color:#333; padding:10px;">
+                    <td align="center" valign="top" style="
+                        display:inline-block;
+                        width:100%;
+                        max-width:300px;
+                        vertical-align:top;
+                        font-family:sans-serif;
+                        font-size:14px;
+                        color:#333;
+                        padding:10px;
+                    ">
                         <img src="{image_url}" alt="Property image" style="width:100%; max-width:250px; border-radius:8px;" /><br/>
                         <strong>{title}</strong><br/>
                         {description}<br/>
@@ -41,9 +57,13 @@ def email_html():
                     </td>
                 ''')
             else:
-                html.append('<td width="50%" style="padding:10px;"></td>')  # Empty cell for odd number of entries
+                html.append('<td style="padding:10px;"></td>')
 
-        html.append('</tr>')  # End row
+        html.append('</tr>')
 
     html.append('</table>')
     return Markup(''.join(html))
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
